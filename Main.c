@@ -5,7 +5,7 @@
 
 int main() {
     srand(time(NULL));
-    printf("=== TESTE DA PESSOA 1: GERAÇÃO DE GABARITO ===\n\n");
+    printf("=== TESTE DE LUCCA: CRIAÇÃO DE GABARITO ===\n\n");
     int tamanho_rodada = 5;
     Nota *gabarito_rodada1 = gerar_sequencia_aleatoria(tamanho_rodada);
     imprimir_sequencia_debug(gabarito_rodada1);
