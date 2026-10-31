@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "sistema.h"
 #include <time.h>
 #include "notas.h"
+
 
 Nota* criar_nota(char tecla, int duracao_ms) {
     Nota *nova = (Nota*) malloc(sizeof(Nota));

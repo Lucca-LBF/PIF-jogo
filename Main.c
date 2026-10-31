@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "notas.h"
+#include "sistema.h"
+
 
 int main() {
     srand(time(NULL));
