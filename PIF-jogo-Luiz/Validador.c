@@ -38,3 +38,27 @@ int ler_resposta(Fila *resp, int max) {
         
     }
 }   return lidas;
+int comparar_filas(const Fila *gabarito, const Fila *resposta) {
+    const Nota *gabarito = gabarito->inicio;
+    const Nota *resposta = resposta->inicio;
+    int acertos = 0;
+    while (gabarito != NULL && resposta != NULL) {
+        if (gabarito->tecla == resposta->tecla) {
+            acertos++;
+        }
+        gabarito = gabarito->proximo;
+        resposta = resposta->proximo;
+    }
+    return acertos;
+}
+void atualizar_jogador(Jogador *j, int acertos, int total) {
+    if (acertos == total) {
+        j->combo++;
+        j->pontos += acertos + j->combo;
+    } else {
+        j->combo = 0;
+        j->vidas--;
+        j->pontos += acertos;
+    }
+    
+}
