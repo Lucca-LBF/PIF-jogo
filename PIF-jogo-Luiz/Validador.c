@@ -1,6 +1,11 @@
 #include  <stdio.h>
 #include  <ctype.h>
 #include  <jogo.h>
+#include  <string.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <unistd.h>
+
 
 
 void jogador_iniciar(jogador *j) {
@@ -20,6 +25,8 @@ static int tecla_validar(char tecla) {
         }
     }   return 0;
 }
+
+// Lê a resposta do jogador, armazenando as teclas válidas na fila resp
 int ler_resposta(Fila *resp, int max) {
     char buffer[TAM_BUF];
     int i, lidas = 0;
@@ -38,6 +45,8 @@ int ler_resposta(Fila *resp, int max) {
         
     }
 }   return lidas;
+
+// Compara as filas de notas do gabarito e da resposta, retornando o número de acertos
 int comparar_filas(const Fila *gabarito, const Fila *resposta) {
     const Nota *gabarito = gabarito->inicio;
     const Nota *resposta = resposta->inicio;
@@ -51,6 +60,8 @@ int comparar_filas(const Fila *gabarito, const Fila *resposta) {
     }
     return acertos;
 }
+
+// Atualiza os pontos, combo e vidas do jogador com base no número de acertos e no total de notas
 void atualizar_jogador(Jogador *j, int acertos, int total) {
     if (acertos == total) {
         j->combo++;
@@ -62,3 +73,40 @@ void atualizar_jogador(Jogador *j, int acertos, int total) {
     }
     
 }
+
+// Limpar e pausar a tela
+void apagar_tela(void) {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");    
+    #endif
+}
+
+void apagar_ms(int ms) {
+    #ifdef _WIN32
+        Sleep(ms);
+    #else
+        usleep(ms * 1000);
+    #endif
+}
+
+// Turno completo
+int turno_jogador(Jogador *j, const Fila *gabarito) {
+    Fila resposta;
+    int acertos;
+
+    LIMPAR_TELA();
+    printf("Digite as %d notas e aperter ENTER", gabarito->tamanho);
+    fflush(stdout);
+
+    ler_resposta(&resposta, gabarito->tamanho);
+    acertos = comparar_filas(gabarito, &resposta);
+    atualizar_jogador(j, acertos, gabarito->tamanho);
+
+    printf(acertos ==  gabarito->tamanho ? "\n   PERFEITO!\n" : "\n   Errou...\n");
+    fflush(stdout);
+    PAUSAR_MS(1500);
+
+    fila_liberar(&resposta);
+    return acertos;
