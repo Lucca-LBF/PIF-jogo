@@ -7,7 +7,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <windows.h>
-    #include <conio.h> //para ler o teclado sem travar o SO
+    #include <conio.h> //para ler o teclado sem t ravar o SO
     #define LIMPAR_TELA() system("cls")
     #define PAUSAR_MS(ms) Sleep(ms)
 #else
