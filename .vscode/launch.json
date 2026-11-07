@@ -2,23 +2,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C/C++ Runner: Debug Session",
+      "name": "Depurar jogo",
       "type": "cppdbg",
       "request": "launch",
+      "program": "${workspaceFolder}/jogo.exe",
       "args": [],
       "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
       "externalConsole": true,
-      "cwd": "c:/Users/luizh/Downloads/PIF-jogo-Luiz/PIF-jogo-Luiz",
-      "program": "c:/Users/luizh/Downloads/PIF-jogo-Luiz/PIF-jogo-Luiz/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ]
+      "preLaunchTask": "Compilar jogo (projeto inteiro)"
     }
   ]
 }
