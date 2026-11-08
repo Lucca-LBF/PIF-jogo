@@ -1,24 +1,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "sistema.h"
 #include "notas.h"
+#include "ritmo.h"
 
+#define TOTAL_RODADAS 10
 
-int main() {
-    srand(time(NULL));
-    printf("=== TESTE DE LUCCA: TESTE DE GABARITO ===\n\n");
-    int tamanho_rodada = 5;
+static int tamanho_da_rodada(int rodada) {
+    int n = 2 + (rodada - 1) / 2;
+    return n > MAX_NOTAS_POR_RODADA ? MAX_NOTAS_POR_RODADA : n;
+}
 
-    Nota *gabarito = gerar_sequencia_aleatoria(tamanho_rodada);
-    imprimir_sequencia_debug(gabarito);
+static int passo_da_rodada(int rodada) {
+    int ms = PASSO_PADRAO_MS - (rodada - 1) * 8;
+    return ms < 180 ? 180 : ms;
+}
 
-    /* 
-    1. Pegar o Gabarito: Receber a lista encadeada de lucca
-    2. Capturar a Entrada: Rodar um loop de 8 passos (no mesmo tempo de 120 BPM) usando o getch() ou kbhit()
-    3. Validar Nó por Nó: Comparar se a tecla que o jogador apertou no passo X é igual à tecla que estava armazenada na struct daquela posição.
-    4. Gerenciar o Estado do Jogo 
-    */
-    liberar_sequencia(gabarito);
-    printf("\nMemoria liberada com sucesso!\n");
+int main(void) {
+    srand((unsigned) time(NULL));
+    iniciar_sistema();
+
+    for (int rodada = 1; rodada <= TOTAL_RODADAS; ++rodada) {
+        char texto[64];
+        int tamanho = tamanho_da_rodada(rodada);
+        int passo_ms = passo_da_rodada(rodada);
+        Nota *gabarito = gerar_sequencia_aleatoria(tamanho);
+
+        snprintf(texto, sizeof(texto), "Rodada %d/%d", rodada, TOTAL_RODADAS);
+        ritmo_definir_cabecalho(texto);
+
+        animar_sequencia(gabarito, passo_ms);
+        turno_jogador(gabarito, passo_ms);
+
+        liberar_sequencia(gabarito);
+    }
+
+    LIMPAR_TELA();
+    printf("Fim das rodadas!\n");
+    printf("Aperte qualquer tecla para sair...\n");
+    fflush(stdout);
+    limpar_buffer_teclado();
+    ler_tecla_bloqueante();
     return 0;
 }
