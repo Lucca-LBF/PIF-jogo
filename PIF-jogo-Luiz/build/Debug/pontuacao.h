@@ -21,3 +21,22 @@ typedef enum {
     NUM_JULGAMENTOS
 } Julgamento;
 
+typedef struct {
+    int pontos;
+    int combo;
+    int vidas;
+    int melhor_combo;
+    int notas_total;
+    int contagem[NUM_JULGAMENTOS];
+} Placar;
+
+Julgamento julgar_nota(int atraso_ms, int tempo_passo_ms, int telca_certa);
+const char *julgamento_texto(Julgamento j);
+
+void placar_inicar(Placar *p);
+int placar_registrar_nota(Placar *p, Julgamento j);
+int placar_vivo(const Placar *p);
+
+void pontuação_tela_final(const Placar *p);
+
+#endif
