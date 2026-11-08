@@ -22,3 +22,40 @@ const chat *julgamento_texto(Julgamento j) {
         default:    return "ERROU!";
     }
 }
+
+
+void placar_inicar(Placar *p) {
+    memset(p, 0, sizeof(*p));
+    p->vidas = VIDA_MAX;
+}
+
+int placar_registrar_nota(Placar *p, Julgamento j) {
+    int ganho = 0;
+
+    p->contagem[j]++;
+    p->notas_total++;
+
+    if (j == JULGAMENTO_PERFEITO)      ganho = PONTOS_PERFEITO;
+    else if (j == JULGAMENTO_OK)       ganho = PONTOS_OK;
+    else if (j == JULGAMENTO_ATRASADO) ganho = PONTOS_ATRASADO;
+    
+    if (j == JULGAMENTO_PERFEITO || j == JULGAMENTO_OK) {
+        p->combo++;
+        if (p->combo > p->melhor_combo) p->melhor_combo = p->combo;
+        ganho += (p->combo > COMBO_MAX ? COMBO_MAX : p->combo) * BONUS_COMBO;
+} else {
+    p->combo = 0;
+}
+
+if (j == JULGAMENTO_ERROU) {
+    p->vidas -= DANO_ERRO;
+    if (p->vidas < 0) p->vidas = 0;
+}
+
+p->pontos += ganho;
+return ganho;
+}
+
+int placar_vivo(const Placar *p) {
+    return p->vidas > 0;
+}
