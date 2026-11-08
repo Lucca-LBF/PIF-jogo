@@ -1,14 +1,10 @@
-# Compilados e executáveis do C
 *.o
 *.out
 *.exe
 *.app
-
 .DS_Store
 .AppleDouble
 .LSOverride
-
 .vscode/
 *.code-workspace
-
 *.log
