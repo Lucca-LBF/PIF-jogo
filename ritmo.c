@@ -31,9 +31,9 @@ void efeito_digitacao(const char *texto, int velocidade_ms) {
 }
 
 static int frequencia_da_tecla(char tecla) {
-    if (tecla == 'S') return 329;
-    if (tecla == 'J') return 392;
-    if (tecla == 'K') return 523;
+    if (tecla == 'A') return 329;
+    if (tecla == 'S') return 392;
+    if (tecla == 'D') return 523;
     return 261;
 }
 
@@ -41,7 +41,7 @@ void tocar_nota_musical(char tecla) {
     tocar_tom(frequencia_da_tecla(tecla), 150);
 }
 
-static void desenhar_tela(int passo_atual, const char *ouca, const char *repita) {
+static void desenhar_tela(int passo_atual, const char *ouca, const char *repita, int contagem) {
     LIMPAR_TELA();
 
     if (cabecalho[0] != '\0') printf("%s\n\n", cabecalho);
@@ -61,6 +61,7 @@ static void desenhar_tela(int passo_atual, const char *ouca, const char *repita)
     printf("%s\n", repita);
 
     printf("====================================\n");
+    if (contagem > 0) printf("Prepare-se... %d\n", contagem);
     fflush(stdout);
 }
 
@@ -92,7 +93,7 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
         linha_vazia(ouca);
         if (tecla_da_vez != '\0') ouca[passo] = tecla_da_vez;
 
-        desenhar_tela(passo, ouca, repita);
+        desenhar_tela(passo, ouca, repita, 0);
 
         if (tecla_da_vez != '\0')  tocar_nota_musical(tecla_da_vez);
         else if (passo % 2 == 0)   tocar_tom(1000, 30);
@@ -102,7 +103,7 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
 }
 
 static int tecla_valida(int c) {
-    return c == 'A' || c == 'S' || c == 'J' || c == 'K';
+    return c == 'W' || c == 'A' || c == 'S' || c == 'D';
 }
 
 int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
@@ -123,20 +124,22 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
     linha_vazia(ouca);
     linha_vazia(repita);
 
-    desenhar_tela(-1, ouca, repita);
-    efeito_digitacao("Sua vez! (teclas A S J K)", 30);
-    PAUSAR_MS(1000);
+    desenhar_tela(-1, ouca, repita, 0);
+    efeito_digitacao("Sua vez! (teclas W A S D)", 30);
+    PAUSAR_MS(500);
     limpar_buffer_teclado();
 
+    long long preparo_ms = (long long) PASSOS_DE_PREPARO * tempo_passo_ms;
+    long long total_ms = preparo_ms + (long long) PASSOS_POR_COMPASSO * tempo_passo_ms;
     long long inicio = tempo_ms();
-    int passo_exibido = -2;
+    int passo_exibido = -1000;
     int redesenhar = 1;
 
     for (;;) {
         long long t = tempo_ms() - inicio;
-        if (t >= (long long) PASSOS_POR_COMPASSO * tempo_passo_ms) break;
+        if (t >= total_ms) break;
 
-        int passo = (int) (t / tempo_passo_ms);
+        int passo = (int) (t / tempo_passo_ms) - PASSOS_DE_PREPARO;
         if (passo != passo_exibido) {
             passo_exibido = passo;
             redesenhar = 1;
@@ -146,9 +149,11 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
         while ((c = tecla_lida()) >= 0) {
             if (!tecla_valida(c)) continue;
 
-            long long quando = tempo_ms() - inicio;
-            int nota = (int) ((quando + tempo_passo_ms) / (2LL * tempo_passo_ms));
-            if (nota >= 0 && nota < MAX_NOTAS_POR_RODADA && resposta[nota] == 0) {
+            long long relativo = (tempo_ms() - inicio) - preparo_ms + tempo_passo_ms;
+            if (relativo < 0) continue;
+
+            int nota = (int) (relativo / (2LL * tempo_passo_ms));
+            if (nota < MAX_NOTAS_POR_RODADA && resposta[nota] == 0) {
                 resposta[nota] = (char) c;
                 repita[nota * 2] = (char) c;
                 tocar_nota_musical((char) c);
@@ -157,7 +162,8 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
         }
 
         if (redesenhar) {
-            desenhar_tela(passo_exibido, ouca, repita);
+            int contagem = passo < 0 ? (-passo + 1) / 2 : 0;
+            desenhar_tela(passo < 0 ? -1 : passo, ouca, repita, contagem);
             redesenhar = 0;
         }
         PAUSAR_MS(5);
@@ -170,7 +176,7 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
     linha_vazia(linha_gabarito);
     for (int k = 0; k < total; ++k) linha_gabarito[k * 2] = esperado[k];
 
-    desenhar_tela(-1, ouca, repita);
+    desenhar_tela(-1, ouca, repita, 0);
     printf("\nGabarito...\t%s\n", linha_gabarito);
     printf("Você......\t%s\n\n", repita);
 

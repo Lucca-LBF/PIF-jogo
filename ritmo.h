@@ -5,7 +5,9 @@
 
 #define PASSOS_POR_COMPASSO   8
 #define MAX_NOTAS_POR_RODADA  4
-#define PASSO_PADRAO_MS       250
+#define PASSO_PADRAO_MS       400
+#define PASSO_MINIMO_MS       300
+#define PASSOS_DE_PREPARO     6
 
 void ritmo_definir_cabecalho(const char *texto);
 
