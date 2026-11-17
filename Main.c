@@ -13,8 +13,8 @@ static int tamanho_da_rodada(int rodada) {
 }
 
 static int passo_da_rodada(int rodada) {
-    int ms = PASSO_PADRAO_MS - (rodada - 1) * 8;
-    return ms < 180 ? 180 : ms;
+    int ms = PASSO_PADRAO_MS - (rodada - 1) * 5;
+    return ms < PASSO_MINIMO_MS ? PASSO_MINIMO_MS : ms;
 }
 
 int main(void) {

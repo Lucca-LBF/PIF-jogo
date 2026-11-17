@@ -32,7 +32,7 @@ Nota* enfileirar_nota(Nota *cabeca, char tecla, int duracao_ms) {
 }
 
 Nota* gerar_sequencia_aleatoria(int tamanho_sequencia) {
-    char opcoes_teclas[] = {'A', 'S', 'J', 'K'};
+    char opcoes_teclas[] = {'A', 'S', 'W', 'D'};
     int num_opcoes = sizeof(opcoes_teclas) / sizeof(opcoes_teclas[0]);
 
     Nota *gabarito = NULL;
