@@ -169,7 +169,6 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
             atual = atual->prox;
         }
 
-        linha_vazia(ouca);
         if (tecla_da_vez != '\0') ouca[passo] = tecla_da_vez;
 
         desenhar_tela(passo, ouca, repita, "Observe a sequencia...");
@@ -177,7 +176,7 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
         if (tecla_da_vez != '\0')  tocar_nota_musical(tecla_da_vez);
         else if (passo % 2 == 0)   tocar_tom(1000, 30);
 
-        PAUSAR_MS(tempo_passo_ms);
+        esperar_ate(inicio + (long long) (passo + 1) * tempo_passo_ms);
     }
 }
 
@@ -207,9 +206,6 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
     linha_vazia(ouca);
     linha_vazia(repita);
 
-    desenhar_tela(-1, ouca, repita, "");
-    efeito_digitacao("Sua vez! (Use W  A  S  D)", 25);
-    PAUSAR_MS(400);
     limpar_buffer_teclado();
 
     long long preparo_ms = (long long) PASSOS_DE_PREPARO * tempo_passo_ms;
@@ -217,6 +213,7 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
     long long inicio = tempo_ms();
     int passo_exibido = -1000;
     int redesenhar = 1;
+    int em_contagem = 0;
 
     for (;;) {
         long long t = tempo_ms() - inicio;
@@ -226,6 +223,7 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
         if (passo != passo_exibido) {
             passo_exibido = passo;
             redesenhar = 1;
+            if (passo % 2 == 0) tocar_tom(1000, 30);
         }
 
         int c;
@@ -262,13 +260,14 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
 
         if (redesenhar) {
             if (passo < 0) {
-                int contagem = (-passo + 1) / 2;
-                snprintf(aviso, sizeof(aviso), "Prepare-se... %d", contagem);
-            } else if (aviso[0] == 'P' && aviso[1] == 'r') {
-                aviso[0] = '\0';
+                int contagem = (-passo + 1 ) / 2 - 1;
+                if (contagem > 0) snprintf(aviso, sizeof(aviso), "%d...", contagem);
+                else              snprintf(aviso, sizeof(aviso), "!");
+                em_contagem = 1;
+            } else if (em_contagem) {
+                aviso[0] = '\0'; 
+                em_contagem = 0; 
             }
-            desenhar_tela(passo < 0 ? -1 : passo, ouca, repita, aviso);
-            redesenhar = 0;
         }
         PAUSAR_MS(5);
     }
