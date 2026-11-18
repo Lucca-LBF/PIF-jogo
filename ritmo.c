@@ -60,9 +60,10 @@ void efeito_digitacao(const char *texto, int velocidade_ms) {
 }
 
 static int frequencia_da_tecla(char tecla) {
-    if (tecla == 'A') return 329;
-    if (tecla == 'S') return 392;
-    if (tecla == 'D') return 523;
+    int frequencias[NUM_TECLAS] = {261, 329, 392, 523};
+    for (int i=0; i<NUM_TECLAS; ++i){
+        if ( tecla==teclas[i] ) return frequencias[i];
+    };
     return 261;
 }
 
@@ -172,7 +173,10 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
 }
 
 static int tecla_valida(int c) {
-    return c == 'W' || c == 'A' || c == 'S' || c == 'D';
+    for( int i=0; i<NUM_TECLAS; ++i ){
+        if(c==teclas[i]) return 1;
+    }
+    return 0;
 }
 
 int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
