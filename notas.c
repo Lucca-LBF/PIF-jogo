@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "notas.h"
-
+char teclas[NUM_TECLAS] = {'D', 'F', 'J', 'K'};
 
 Nota* criar_nota(char tecla, int duracao_ms) {
     Nota *nova = (Nota*) malloc(sizeof(Nota));
@@ -31,14 +31,10 @@ Nota* enfileirar_nota(Nota *cabeca, char tecla, int duracao_ms) {
 }
 
 Nota* gerar_sequencia_aleatoria(int tamanho_sequencia) {
-    char opcoes_teclas[] = {'A', 'S', 'W', 'D'};
-    int num_opcoes = sizeof(opcoes_teclas) / sizeof(opcoes_teclas[0]);
-
     Nota *gabarito = NULL;
 
     for (int i = 0; i < tamanho_sequencia; i++) {
-        int indice_sorteado = rand() % num_opcoes;
-        char tecla_sorteada = opcoes_teclas[indice_sorteado];
+        char tecla_sorteada = teclas[rand() % NUM_TECLAS];
         gabarito = enfileirar_nota(gabarito, tecla_sorteada, 500); 
     }
 

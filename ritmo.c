@@ -31,9 +31,10 @@ void efeito_digitacao(const char *texto, int velocidade_ms) {
 }
 
 static int frequencia_da_tecla(char tecla) {
-    if (tecla == 'A') return 329;
-    if (tecla == 'S') return 392;
-    if (tecla == 'D') return 523;
+    int frequencias[NUM_TECLAS] = {261, 329, 392, 523};
+    for (int i = 0; i < NUM_TECLAS; ++i){
+        if (tecla == teclas[i]) return frequencias[i];
+    }
     return 261;
 }
 
@@ -103,7 +104,10 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
 }
 
 static int tecla_valida(int c) {
-    return c == 'W' || c == 'A' || c == 'S' || c == 'D';
+    for (int i = 0; i < NUM_TECLAS; ++i){
+        if (c == teclas[i]) return 1;
+    }
+    return 0;
 }
 
 int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
@@ -125,7 +129,9 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms) {
     linha_vazia(repita);
 
     desenhar_tela(-1, ouca, repita, 0);
-    efeito_digitacao("Sua vez! (teclas W A S D)", 30);
+    char aviso[64];
+    snprintf(aviso, sizeof(aviso), "Sua vez! (%c, %c, %c, %c)", teclas[0], teclas[1], teclas[2], teclas[3]);
+    efeito_digitacao(aviso, 30);
     PAUSAR_MS(500);
     limpar_buffer_teclado();
 

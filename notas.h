@@ -1,5 +1,7 @@
 #ifndef NOTAS_H
 #define NOTAS_H
+#define NUM_TECLAS 4
+extern char teclas[NUM_TECLAS];
 
 typedef struct Nota {
     char tecla;
