@@ -16,7 +16,14 @@
 
 static int usa_ansi = 0;
 static int iniciado = 0;
-
+static void mostrar_cursor(int visivel){
+    HANDLE saida = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info:
+    if (GetConsoleCursorInfo(saida, &info)) {
+        info.bVisible = visivel ? TRUE : FALSE;
+        SetConsoleInfo(saida, &info);
+    }
+}
 void iniciar_sistema(void) {
     HANDLE saida;
     DWORD modo = 0;
@@ -30,9 +37,13 @@ void iniciar_sistema(void) {
     if (saida != INVALID_HANDLE_VALUE && GetConsoleMode(saida, &modo)) {
         if (SetConsoleMode(saida, modo | MODO_ANSI)) usa_ansi = 1;
     }
+    
+    mostrar_cursor(0);
+    atexit(encerrar_sistema);
 }
 
 void encerrar_sistema(void) {
+    mostrar_cursor(1);
 }
 
 void limpar_tela(void) {
