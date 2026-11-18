@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "sistema.h"
 #include <time.h>
 #include "notas.h"
 
