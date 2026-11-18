@@ -13,6 +13,7 @@ void encerrar_sistema(void);
 void limpar_tela(void);
 void pausar_ms(int ms);
 long long tempo_ms(void);
+int largura_tela(void);
 
 int tecla_lida(void);
 int ler_tecla_bloqueante(void);

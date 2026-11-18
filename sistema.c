@@ -63,6 +63,14 @@ long long tempo_ms(void) {
     return (long long) GetTickCount64();
 }
 
+int largura_tela(void) {
+    CONSOLE_SCREEN_BUFFER_INFO info;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info)) {
+        return info.srWindow.Right - info.srWindow.Left + 1;
+    }
+    return 80;
+}
+
 int tecla_lida(void) {
     int c;
     if (!_kbhit()) return -1;
@@ -97,6 +105,7 @@ void tocar_tom(int frequencia_hz, int duracao_ms) {
 #else
 
 #include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/select.h>
 #include <termios.h>
 #include <time.h>
@@ -153,6 +162,12 @@ long long tempo_ms(void) {
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);
     return (long long) t.tv_sec * 1000LL + t.tv_nsec / 1000000LL;
+}
+
+int largura_tela(void) {
+    struct winsize w;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 && w.ws_col > 0) return w.ws_col;
+    return 80;
 }
 
 static int ler_byte(void) {
