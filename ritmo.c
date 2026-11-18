@@ -80,6 +80,8 @@ static void formatar_faixa_grande(char *destino, size_t tam, const char *titulo,
         int escrito = 0;
         if (i % 2 == 0) {
             escrito = snprintf(faixa + pos, sizeof(faixa) - pos, "[ %c ] ", c == '-' ? ' ' : c);
+        } else if (c == '*') {
+            escrito = snprintf(faixa + pos, sizeof(faixa) - pos, " °  ");
         } else {
             escrito = snprintf(faixa + pos, sizeof(faixa) - pos, " %c  ", c == '-' ? '.' : c);
         }
@@ -105,7 +107,7 @@ static void desenhar_tela(int passo_atual, const char *ouca, const char *repita,
     printf("\n");
 
     for (int i = 0; i < PASSOS_POR_COMPASSO; ++i) {
-        cursor[i] = (i == passo_atual) ? 'V' : '-';
+        cursor[i] = (i == passo_atual) ? (i % 2 == 0 ? 'O' : '*') : '-';
     }
     cursor[PASSOS_POR_COMPASSO] = '\0';
 
@@ -136,6 +138,10 @@ static void linha_vazia(char *linha) {
     linha[PASSOS_POR_COMPASSO] = '\0';
 }
 
+static void esperar_ate(long long momento_ms) {
+    while (tempo_ms() < momento_ms) PAUSAR_MS(1);
+}
+
 void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
     Nota *atual = gabarito;
     char ouca[PASSOS_POR_COMPASSO + 1];
@@ -144,14 +150,17 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
     linha_vazia(ouca);
     linha_vazia(repita);
 
-    LIMPAR_TELA();
-    printf("\n\n\n");
-    if (cabecalho[0] != '\0') {
-        ritmo_centralizar(cabecalho);
-        printf("\n");
+    char aviso[64];
+    snprintf(aviso, sizeof(aviso), "No ritmo... (%c) (%c) (%c) (%c)", teclas[0], teclas[1], teclas[2], teclas[3]);
+
+    // metrônomo:
+    long long inicio = tempo_ms();
+    for (int passo = 0; passo < PASSOS_POR_COMPASSO; ++passo) {
+        desenhar_tela(passo, ouca, repita, aviso);
+        if (passo % 2 == 0) tocar_tom(1000, 30);
+        esperar_ate(inicio + (long long) (passo + 1) * tempo_passo_ms);
     }
-    efeito_digitacao("No ritmo... 3, 2, 1...", 40);
-    PAUSAR_MS(800);
+    inicio = tempo_ms();
 
     for (int passo = 0; passo < PASSOS_POR_COMPASSO; ++passo) {
         char tecla_da_vez = '\0';
