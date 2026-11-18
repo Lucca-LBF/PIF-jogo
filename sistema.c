@@ -114,9 +114,11 @@ void iniciar_sistema(void) {
     }
     atexit(encerrar_sistema);
     signal(SIGINT, tratar_sigint);
+    write(STDOUT_FILENO, "\033[?25l", 6); // code font para esconder a barra
 }
 
 void encerrar_sistema(void) {
+    write(STDOUT_FILENO, "\033[?25h", 6); // code font para mostrar a barra
     if (termios_salvo) {
         tcsetattr(STDIN_FILENO, TCSANOW, &termios_original);
         termios_salvo = 0;
