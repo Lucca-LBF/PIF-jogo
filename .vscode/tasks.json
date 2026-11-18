@@ -15,6 +15,7 @@
                 "${workspaceFolder}/Main.c",
                 "${workspaceFolder}/notas.c",
                 "${workspaceFolder}/ritmo.c",
+                "${workspaceFolder}/pontuacao.c",
                 "${workspaceFolder}/sistema.c"
             ],
             "problemMatcher": ["$gcc"],
