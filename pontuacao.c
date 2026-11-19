@@ -51,29 +51,67 @@ int placar_registrar_nota(Placar *p, Julgamento j) {
 
 void pontuacao_tela_final(const Placar *p) {
     char linha[128];
+    int ranking[5][2] = {0};
+
+
+    FILE *arq = fopen("recordes.txt", "r");
+    if (arq != NULL) {
+        for (int i = 0; i < 5; ++i) {
+            if (fscanf(arq, "%d %d", &ranking[i][0], &ranking[i][1]) != 2) break;
+        }
+        fclose(arq);
+    }
+
+    for (int i = 0; i < 5; ++i) {
+        if (p->pontos > ranking[i][0]) {
+            for (int j = 4; j > i; --j) {
+                ranking[j][0] = ranking[j - 1][0];
+                ranking[j][1] = ranking[j - 1][1];
+            }
+            ranking[i][0] = p->pontos;
+            ranking[i][1] = p->melhor_combo;
+            break;
+        }
+    }
+
+    arq = fopen("recordes.txt", "w");
+    if (arq != NULL) {
+        for (int i = 0; i < 5; ++i) {
+            fprintf(arq, "%d %d\n", ranking[i][0], ranking[i][1]);
+        }
+        fclose(arq);
+    }
 
     LIMPAR_TELA();
-    printf("\n\n\n\n");
+    printf("\n\n\n");
     ritmo_centralizar("==============================================");
     ritmo_centralizar("F I M   D A S   R O D A D A S");
     ritmo_centralizar("==============================================");
     printf("\n");
 
-    snprintf(linha, sizeof(linha), "PONTUACAO FINAL: %d", p->pontos);
+    snprintf(linha, sizeof(linha), "PONTUACAO FINAL: %d   |   Melhor combo: %dx",
+             p->pontos, p->melhor_combo);
     ritmo_centralizar(linha);
-    printf("\n");
 
-    snprintf(linha, sizeof(linha), "Melhor combo: %dx", p->melhor_combo);
-    ritmo_centralizar(linha);
     snprintf(linha, sizeof(linha), "PERFEITO: %d   |   BOM: %d   |   ERROU: %d",
              p->contagem[JULGAMENTO_PERFEITO],
              p->contagem[JULGAMENTO_BOM],
              p->contagem[JULGAMENTO_ERROU]);
     ritmo_centralizar(linha);
     printf("\n");
+
+    ritmo_centralizar("--- TOP 5 RECORDES ---");
+    for (int i = 0; i < 5; ++i) {
+        if (ranking[i][0] > 0) {
+            snprintf(linha, sizeof(linha), "%d lugar: %d pts (Combo %dx)",
+                     i + 1, ranking[i][0], ranking[i][1]);
+            ritmo_centralizar(linha);
+        }
+    }
+
+    printf("\n");
     ritmo_centralizar("==============================================");
     printf("\n");
-
     ritmo_centralizar("Aperte qualquer tecla para sair...");
     fflush(stdout);
 }
