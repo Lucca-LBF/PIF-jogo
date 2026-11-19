@@ -18,10 +18,10 @@ static int usa_ansi = 0;
 static int iniciado = 0;
 static void mostrar_cursor(int visivel){
     HANDLE saida = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO info:
+    CONSOLE_CURSOR_INFO info;
     if (GetConsoleCursorInfo(saida, &info)) {
         info.bVisible = visivel ? TRUE : FALSE;
-        SetConsoleInfo(saida, &info);
+        SetConsoleCursorInfo(saida, &info);
     }
 }
 void iniciar_sistema(void) {
