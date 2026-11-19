@@ -1,5 +1,8 @@
 # Pongue
 Jogo de ritmo em C, estilo PaRappa the Rapper, feito para a cadeira de PiF.
+## Demonstração
+
+[vídeo do jogo funcionando no YouTube](https://youtu.be/O1sN5i8KxGA))
 
 O computador toca uma sequência de teclas e o jogador repete no mesmo ritmo.
 As teclas padrão são `D F J K` e podem ser trocadas no menu (Teclas).
