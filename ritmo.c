@@ -8,6 +8,13 @@
 
 static char cabecalho[128] = "";
 
+// Qual linha tem a seta ">": 0 = TEMPO, 1 = OUÇA, 2 = REPITA
+static int linha_ativa = 0;
+
+static char resultado[96] = "";
+static char ultimo_gabarito[PASSOS_POR_COMPASSO + 1] = "";
+static char ultima_resposta[PASSOS_POR_COMPASSO + 1] = "";
+
 static int largura_visual_utf8(const char *texto) {
     int largura = 0;
     for (int i = 0; texto[i] != '\0'; ++i) {
@@ -26,6 +33,10 @@ void ritmo_centralizar(const char *texto) {
 
     for (int i = 0; i < espacos; ++i) putchar(' ');
     printf("%s\n", texto);
+}
+
+void ritmo_reiniciar(void) {
+    resultado[0] = '\0';
 }
 
 void ritmo_definir_cabecalho(const char *texto) {
@@ -88,7 +99,7 @@ static void formatar_faixa_grande(char *destino, size_t tam, const char *titulo,
         if (escrito > 0) pos += (size_t) escrito;
     }
 
-    snprintf(destino, tam, "%-8s %s", titulo, faixa);
+    snprintf(destino, tam, "%-10s %s", titulo, faixa);
 }
 
 static void desenhar_tela(int passo_atual, const char *ouca, const char *repita, const char *aviso) {
@@ -111,15 +122,15 @@ static void desenhar_tela(int passo_atual, const char *ouca, const char *repita,
     }
     cursor[PASSOS_POR_COMPASSO] = '\0';
 
-    formatar_faixa_grande(linha, sizeof(linha), "TEMPO :", cursor);
+    formatar_faixa_grande(linha, sizeof(linha), linha_ativa == 0 ? "> TEMPO :" : "  TEMPO :", cursor);
     ritmo_centralizar(linha);
     printf("\n");
 
-    formatar_faixa_grande(linha, sizeof(linha), "OUCA  :", ouca);
+    formatar_faixa_grande(linha, sizeof(linha), linha_ativa == 1 ? "> OUÇA   :" : "  OUÇA   :", ouca);
     ritmo_centralizar(linha);
     printf("\n");
 
-    formatar_faixa_grande(linha, sizeof(linha), "REPITA:", repita);
+    formatar_faixa_grande(linha, sizeof(linha), linha_ativa == 2 ? "> REPITA:" : "  REPITA:", repita);
     ritmo_centralizar(linha);
 
     printf("\n");
@@ -150,8 +161,15 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
     linha_vazia(ouca);
     linha_vazia(repita);
 
-    char aviso[64];
+    char aviso[96];
     snprintf(aviso, sizeof(aviso), "No ritmo... (%c) (%c) (%c) (%c)", teclas[0], teclas[1], teclas[2], teclas[3]);
+
+    if (resultado[0] != '\0') {
+        strcpy(ouca, ultimo_gabarito);
+        strcpy(repita, ultima_resposta);
+        snprintf(aviso, sizeof(aviso), "%s", resultado);
+    }
+    linha_ativa = 0;
 
     // metrônomo:
     long long inicio = tempo_ms();
@@ -161,6 +179,11 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
         esperar_ate(inicio + (long long) (passo + 1) * tempo_passo_ms);
     }
     inicio = tempo_ms();
+    linha_vazia(ouca);
+    linha_vazia(repita);
+    linha_ativa = 1;
+
+    const char *contagem[] = {"3...", "2...", "1...", "!"};
 
     for (int passo = 0; passo < PASSOS_POR_COMPASSO; ++passo) {
         char tecla_da_vez = '\0';
@@ -171,7 +194,7 @@ void animar_sequencia(Nota *gabarito, int tempo_passo_ms) {
 
         if (tecla_da_vez != '\0') ouca[passo] = tecla_da_vez;
 
-        desenhar_tela(passo, ouca, repita, "Observe a sequencia...");
+        desenhar_tela(passo, ouca, repita, contagem[passo / 2]);
 
         if (tecla_da_vez != '\0')  tocar_nota_musical(tecla_da_vez);
         else if (passo % 2 == 0)   tocar_tom(1000, 30);
@@ -207,6 +230,7 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
     linha_vazia(repita);
 
     limpar_buffer_teclado();
+    linha_ativa = 2;
 
     long long preparo_ms = (long long) PASSOS_DE_PREPARO * tempo_passo_ms;
     long long total_ms = preparo_ms + (long long) PASSOS_POR_COMPASSO * tempo_passo_ms;
@@ -268,6 +292,8 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
                 aviso[0] = '\0'; 
                 em_contagem = 0; 
             }
+            desenhar_tela(passo < 0 ? passo + PASSOS_DE_PREPARO : passo, ouca, repita, aviso);
+            redesenhar = 0;
         }
         PAUSAR_MS(5);
     }
@@ -281,10 +307,9 @@ int turno_jogador(Nota *gabarito, int tempo_passo_ms, Placar *placar) {
     linha_vazia(linha_gabarito);
     for (int k = 0; k < total; ++k) linha_gabarito[k * 2] = esperado[k];
 
-    snprintf(aviso, sizeof(aviso), "Acertos na rodada: %d/%d   |   Pontos totais: %d",
+    snprintf(resultado, sizeof(resultado), "Acertos: %d/%d   |   Pontos: %d",
              acertos, total, placar->pontos);
-    desenhar_tela(-1, linha_gabarito, repita, aviso);
-
-    PAUSAR_MS(2000);
+    strcpy(ultimo_gabarito, linha_gabarito);
+    strcpy(ultima_resposta, repita);
     return acertos;
 }

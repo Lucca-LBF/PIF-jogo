@@ -1,6 +1,6 @@
 @echo off
 
-gcc -Wall -Wextra -std=c11 -g -o jogo.exe Main.c notas.c ritmo.c pontuacao.c sistema.c
+gcc -Wall -Wextra -std=c11 -g -o jogo.exe Main.c notas.c ritmo.c pontuacao.c menu.c sistema.c
 if errorlevel 1 (
     echo.
     echo *** ERRO NA COMPILACAO ***
